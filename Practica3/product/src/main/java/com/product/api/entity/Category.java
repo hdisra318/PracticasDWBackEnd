@@ -33,6 +33,7 @@ public class Category {
 	@Column(name = "category")
     private String category;
     
+	@NotNull
 	@Column(name = "acronym")
     private String acronym;
     

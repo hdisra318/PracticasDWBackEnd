@@ -1,9 +1,9 @@
+import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.LinkedList;
 import java.util.Scanner;
 
 /**
- * Clase CategoryMethods que implementa los métodos pedidos
+ * Clase CategoryMethods que implementa los metodos pedidos
  * 
  * @author Israel Hernandez Dorantes - 318206604
  * @version 1.0
@@ -11,9 +11,9 @@ import java.util.Scanner;
 public class CategoryMethods {
 
     /**
-     * Lista de categorias registradas
+     * Guarda las categorias registradas
      */
-    LinkedList<LinkedList<String>> categoryList = new LinkedList<>();
+    HashMap<Integer, Category> categoryList = new HashMap<>();
 
     /**
      * Metodo createCategory que registra los datos de un objeto Category
@@ -21,20 +21,14 @@ public class CategoryMethods {
      */
     void createCategory(Category category){
 
-        if(!categoryList.isEmpty() && inCategoryList(category.category_id.intValue()) != null){
+        if(!categoryList.isEmpty() && categoryList.containsKey(category.category_id)){
             System.out.println("- El id proporcionado ya fue registrado\n");
             return;
         }
 
-        //Agregando los datos del objeto a la lista
-        LinkedList<String> categoria = new LinkedList<>();
-        categoria.add(String.valueOf(category.category_id));
-        categoria.add(category.category);
-        categoria.add(category.acronym);
-
-        //Agregando la lista a la lista global
-        categoryList.add(categoria);
-        System.out.println("- Categoria agregada con exito\n");
+        //Agregando al hash map global
+        categoryList.put(category.category_id, category);
+        System.out.println("-> Categoria agregada con exito\n");
 
     }
 
@@ -51,88 +45,62 @@ public class CategoryMethods {
         }
 
         // Imprimiendo las categorias de la lista
-        System.out.println("->Lista de categorias registradas:");
-        for(int i = 0; i<categoryList.size(); ++i){
-
-            System.out.println((i+1)+".\tId: "+categoryList.get(i).get(0)+
-            "\n  \tCategoria: "+categoryList.get(i).get(1)+
-            "\n  \tAcronimo: "+categoryList.get(i).get(2));
-
-        }
+        System.out.println("-> Lista de categorias registradas:");
+        categoryList.forEach((id, categoria) -> {
+            System.out.println("--> Id: "+id.intValue()+
+            "\nCategoria: "+categoria.category+
+            "\nAcronimo: "+categoria.acronym);
+        });
+        
     }
 
     /**
-     * Metodo getCategory que recibe desde la consola el id de una categoría y 
+     * Metodo getCategory que recibe desde la consola el id de una categoria y 
      * muestra sus datos (category_id, category, acronym)
      * 
      * @param category_id id de la categoria
      */
-    void getCategory(int category_id){
+    void getCategory(Integer category_id){
 
         if(categoryList.isEmpty()){
             System.out.println("- No existen categorias registradas\n");
             return;
         }
 
-        LinkedList<String> catList = inCategoryList(category_id);
-        if(catList == null){
+        Category cate = categoryList.getOrDefault(category_id, null);
+        if(cate == null){
             System.out.println("- No existe una categoria con el id ingresado\n");
             return;
         }
-
+        
         System.out.println("-> Los datos de la categoria solicitada son:");
-        System.out.println("Id: "+category_id);
-        System.out.println("Categoria: "+catList.get(1));
-        System.out.println("Acronimo: "+catList.get(2));
+        System.out.println("Id: "+category_id.intValue());
+        System.out.println("Categoria: "+cate.category);
+        System.out.println("Acronimo: "+cate.acronym);
 
     }
 
     /**
      * Metodo deleteCategory que recibe desde la consola el id de una 
-     * categoría y elimina su registro de la lista
+     * categoria y elimina su registro de la lista
      * 
      * @param category_id id de la categoria a eliminar
      */
-    void deleteCategory(int category_id){
+    void deleteCategory(Integer category_id){
 
         if(categoryList.isEmpty()){
             System.out.println("- No existen categorias registradas\n");
             return;
         }
 
-        LinkedList<String> catList = inCategoryList(category_id);
-        if(catList == null){
-            System.out.println("- No existe una categoria con el id ingresado");
+        if(!categoryList.containsKey(category_id)){
+            System.out.println("- No existe una categoria con el id ingresado\n");
             return;
         }
 
-        categoryList.remove(catList);
-        System.out.println("-> Registro de la categoria eliminada\n");
+        categoryList.remove(category_id);
+        System.out.println("-> Categoria eliminada del registro\n");
 
-    }
-
-
-    /**
-     * Metodo auxiliar que verifica si el id de la categoria se encuentra 
-     * registrado en la lista global de categorias
-     * 
-     * @param category_id id de la categoria
-     * @return la lista de la categoria a la que pertenece, null en otro caso 
-     */
-    private LinkedList<String> inCategoryList(int category_id){
-
-        LinkedList<String> listFound = null;
-
-        for(LinkedList<String> l : categoryList){
-
-            if(l.get(0).equals(""+category_id)){
-                listFound = l;
-                break;
-            }
-
-        }
-
-        return listFound;
     }
 
 
@@ -163,6 +131,7 @@ public class CategoryMethods {
 
             try{
                 opc = sc.nextInt();
+                sc.nextLine();
             }catch(InputMismatchException ime){
                 System.out.println("\nPor favor escribe una opcion valida");
                 //Vaciando el buffer
@@ -178,6 +147,7 @@ public class CategoryMethods {
                     System.out.print("\n-> Ingresa el id de la categoria:  ");
                     try{
                         id = sc.nextInt();
+                        sc.nextLine();
                     }catch(InputMismatchException ime){
                         System.out.println("\nPor favor escribe un id valido");
                         //Vaciando el buffer
@@ -201,6 +171,7 @@ public class CategoryMethods {
                     System.out.print("\n-> Ingresa el id de la categoria a buscar:  ");
                     try{
                         id = sc.nextInt();
+                        sc.nextLine();
                     }catch(InputMismatchException ime){
                         System.out.println("\nPor favor escribe un id valido");
                         //Vaciando el buffer
@@ -208,13 +179,14 @@ public class CategoryMethods {
                         continue;
                     }
                     System.out.println("\n-> Estatus:");
-                    cm.getCategory(id);
+                    cm.getCategory(Integer.valueOf(id));
                     break;
 
                 case 4:
                     System.out.print("\n-> Ingresa el id de la categoria a buscar:  ");
                     try{
                         id = sc.nextInt();
+                        sc.nextLine();
                     }catch(InputMismatchException ime){
                         System.out.println("\nPor favor escribe un id valido");
                         //Vaciando el buffer
@@ -222,7 +194,7 @@ public class CategoryMethods {
                         continue;
                     }
                     System.out.println("\n-> Estatus:");
-                    cm.deleteCategory(id);
+                    cm.deleteCategory(Integer.valueOf(id));
                     break;
 
                 case 5:
